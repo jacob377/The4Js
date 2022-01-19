@@ -10,7 +10,7 @@
 
 void getWord(char outWord[7], int size);
 
-int main()
+int playLingo()
 {
 	return 0;
 }
