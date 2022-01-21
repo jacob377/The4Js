@@ -13,7 +13,7 @@
 
 struct player
 {
-	char name[5];
+	char name[40];
 	int score;
 };
 
@@ -28,7 +28,9 @@ void innitOverlay(int size, char overLay[MAX_ATTEMPTS][size]);
 
 int playLingo()
 {
-	int size, playing = 1, points = 0;
+	int size, playing = 1, points = 0, active = 1;
+	char input;
+	char name[6];
 	char acctiveWord[7];
 
 
@@ -41,16 +43,31 @@ int playLingo()
 	}while(size != 5 && size != 6 && size != 7);
 
 //	game loop
-	while(playing == 1)
+
+	do
 	{
 		getWord(acctiveWord, size);
-		puts(acctiveWord);
-		printf("\n\n");
-		playRound(size, acctiveWord, &points);
-		playing = 0;
-	}
+		active = playRound(size, acctiveWord, &points);
+	}while(active == 1);
+
+	do
+	{
+		printf("You had %d points would you like to summit your name and score to the leaderBoards(Y\\N):", points);
+		scanf("%c", &input);
+	}while(input != 'Y' && input != 'N' && input!= 'n' && input != 'y');
 	
-	return 0;
+
+	if(input == 'Y' || input == 'y')
+	{
+		do
+		{
+			system("cls");
+			printf("please Enter a 5 letter name");
+			gets(name);
+		}while(name[5] != '\0');
+	}
+
+	return points;
 }
 
 
@@ -113,7 +130,8 @@ int playRound(int size, char word[size], int *points)
 	char wrongPlaceLoc[MAX_ATTEMPTS][size];
 	char pastAttempts[MAX_ATTEMPTS][size];
 	char input[size];
-	int flag, correct = 1;
+	char inputLetter;
+	int flag = 1, correct = 1;
 	int counterTwo, counter,letterCounter, attemptNumber = 1;
 
 	strcpy(altWord, word);
@@ -131,8 +149,9 @@ int playRound(int size, char word[size], int *points)
 	changeBoard(size, pastAttempts, template, attemptNumber);
 
 //playing game
-	while(attemptNumber <= MAX_ATTEMPTS)
+	while(attemptNumber <= MAX_ATTEMPTS && flag == 1)
 	{
+		flag = 1;
 		//displaying board and getting user input
 		do
 		{
@@ -154,7 +173,7 @@ int playRound(int size, char word[size], int *points)
 
 				if(counter == attemptNumber - 1)
 				{
-					printf("   <<<");
+					printf("\t<<<");
 				}
 				printf("\n\n");
 			}
@@ -177,20 +196,54 @@ int playRound(int size, char word[size], int *points)
 				input[counter] = '*';
 				*points += 1;
 				correct += 1;
-
-			}
-			//checking for wrong letter location
-			else if(inString(input[counter], size, altWord) == 1)
-			{
-				wrongPlaceLoc[attemptNumber-1][counter] = '?';
 			}
 		}
+
+
+		//checking for wrong letter locations
+		for(counter = 1; counter < size; counter ++)
+		{
+			if(inString(input[counter], size, altWord) == 1)
+			{
+				wrongPlaceLoc[attemptNumber - 1][counter] = '?';
+			}
+		}
+
 		attemptNumber ++;
 		changeBoard(size, pastAttempts, template, attemptNumber);
+		if (strcmp(template, word) == 0)
+		{
+			points += (MAX_ATTEMPTS - attemptNumber + 1) * 3;
+			flag = 0;
+		}
 	}
-	printf("the word was ");
-	puts(word);
-	printf("\n\n");
+
+	if(flag == 1)
+	{
+		printf("the word was ");
+		puts(word);
+		printf("\n\n");
+		return -1;
+	}
+
+	else
+	{
+		do
+		{
+			printf("well done would you like to play again, to get more points(Y/N): ");
+			scanf("%c", inputLetter);
+			system("cls");
+		}while (inputLetter != 'Y' && inputLetter != 'N' && inputLetter != 'n' && inputLetter != 'y');
+
+		if(inputLetter == 'Y' || inputLetter == 'y')
+		{
+			return 1;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 }
 
 void changeBoard(int size, char Board[MAX_ATTEMPTS][size], char template[size], int attemptNumber)
