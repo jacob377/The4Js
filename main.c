@@ -134,13 +134,23 @@ int main()
 				break;
 
 				case 4:
-				flag = 0;
 				for(counter = 0; counter < 15; counter ++)
-				{
+				{	printf("   ");
 					for(letterCounter = 0; letterCounter < 70; letterCounter ++)
 					{
 						printf("%c", end[counter][letterCounter]);
 					}
+				}
+				system("cls");
+				printf("\n\n\n\n\n\nPress enter to Exit or esc to return:");
+				do
+				{
+					input = getch();
+				}while(input != 13 && input != 27);
+
+				if(input == 13)
+				{
+					flag = 0;
 				}
 				break;
 
