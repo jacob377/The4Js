@@ -4,26 +4,27 @@
 #include<string.h>
 #include<conio.h>
 
-#define OPTIONS 5
+#define OPTIONS 6
 #define SELECTIONS 5 
 
 
 
 struct player
 {
-	char userName[7];
+	char userName[10];
 	char password[10];
 	int scores[4];
 };
 
 struct stat
 {
-	char userName[7];
+	char userName[10];
 	int score;
 };
 
 int logIn(struct player* player);
 void pressTo();
+int check(char userName[10]);
 
 
 int main()
@@ -74,12 +75,24 @@ int main()
 	"             #       ###### #    #   #   # #    #  ####              \n"
 	};
 
+	char stats[7][45] =
+	{
+		"  #####                                     \n",
+		" #     #  ####   ####  #####  ######  ####  \n",
+		" #       #    # #    # #    # #      #      \n",
+		"  #####  #      #    # #    # #####   ####  \n",
+		"       # #      #    # #####  #           # \n",
+		" #     # #    # #    # #   #  #      #    # \n",
+		"  #####   ####   ####  #    # ######  ####  \n"		
+	};
+
 
 	char options[OPTIONS][20] = {
 		"Lingo    ",
 		"Option 2 ",
 		"Option 3 ",
 		"Option 4 ",
+		"Scores   ",
 		"Exit     "
 	};
 
@@ -172,7 +185,7 @@ int main()
 					playLingo();
 					break;
 
-					case 4:
+					case 5:
 					system("cls");
 					for(counter = 0; counter < 15; counter ++)
 					{	printf("   ");
@@ -203,13 +216,19 @@ int main()
 
 
 
-int logIn(struct player* player)
+int logIn(struct player* playerStorage)
 {
 	FILE * accountFile;
 	struct player playerBuffer;
-	int flag = 1, counter, letterCounter, selection = 0, logFlag = 0, accounts;
+	int flag = 1, counter, letterCounter, selection = 0, logFlag = 0, accounts, conflict = 0;
 	char input;
-	char InUserName[7], InPassWord[10];
+	char InUserName[10], InPassWord[10];
+
+				
+	accountFile = fopen("accountInfo.bin", "rb");
+	fseek(accountFile, 0, SEEK_END);
+	accounts = ftell(accountFile) / sizeof(struct player);
+	fclose(accountFile);
 
 	char options[SELECTIONS][20] = 
 	{
@@ -266,17 +285,12 @@ int logIn(struct player* player)
 			switch(selection)
 			{
 				case 0:
-				accountFile = fopen("accountInfo.bin", "rb");
-
 				if(accountFile == NULL)
 				{
 					accountFile = fopen("accountInfo.bin", "wb");
 					fclose(accountFile);
 
 				}
-
-				fseek(accountFile, 0, SEEK_END);
-				accounts = ftell(accountFile) / sizeof(struct player);
 
 				if(accounts > 0)
 				{
@@ -302,7 +316,7 @@ int logIn(struct player* player)
 							fread(&playerBuffer, sizeof(struct player), 1, accountFile);
 							if(strcmp(playerBuffer.userName, InUserName) == 0 && strcmp(playerBuffer.password, InPassWord))
 							{
-								printf("You have Succsessfuly logged in");
+								printf("You have Succsessfuly logged in\n\n");
 								pressTo();
 								logFlag = 1;
 								return 1;
@@ -322,6 +336,82 @@ int logIn(struct player* player)
 				break;
 
 				case 1:
+				while(logFlag == 0)
+				{
+					accountFile = fopen("accountInfo.bin", "rb");
+					conflict = 0;
+					do
+					{
+						system("cls");
+						printf("Enter a user name or type 'exit' to return to menue: ");
+						fflush(stdin);
+						gets(InUserName);
+					}while(check(InUserName) == 0);
+
+					if(strcmp(InUserName, "exit") == 0)
+					{
+						return 0;
+					}
+
+					for(counter = 0; counter < accounts && conflict ==0; counter++)
+					{
+						fread(&playerBuffer, sizeof(struct player), 1, accountFile);
+						if(strcmp(playerBuffer.userName, InUserName) == 0)
+						{
+							conflict = 1;
+						}
+					}
+
+					if(conflict == 1)
+					{
+						printf("This user name has already been taken\n");
+						pressTo();
+						return 0;
+					}
+
+					do
+					{
+						system("cls");
+						printf("Now enter a password: ");
+						fflush(stdin);
+						gets(InPassWord);
+					}while(check(InPassWord) == 0);
+
+					system("cls");
+					printf("Are you sure you want these credentials:\n\n\nUser Name - %s\nPassword - %s\n\n", InUserName, InPassWord);
+					
+					printf("\n\n\n\n\n\nPress enter to confirm or esc to return:");
+					do
+					{
+						fflush(stdin);
+						input = getch();
+					}while(input != 13 && input != 27);
+
+					if(input == 13)
+					{
+						printf("\n\n");
+						strcpy(playerBuffer.userName, InUserName);
+						strcpy(playerBuffer.password, InPassWord);
+
+						puts(playerBuffer.userName);
+						puts(playerBuffer.password);
+						playerBuffer.scores[0] = 0;
+						playerBuffer.scores[1] = 0;
+						playerBuffer.scores[2] = 0;
+						playerBuffer.scores[3] = 0;
+
+						fclose(accountFile);
+						fopen("accountInfo.bin", "ab");
+						fwrite(&playerBuffer, sizeof(struct player), 1, accountFile);
+						fclose(accountFile);
+						return 1;
+					}
+
+					else
+					{
+
+					}
+				}
 				break;
 
 				case 2:
@@ -354,6 +444,7 @@ int logIn(struct player* player)
 	return 1;
 }
 
+
 void pressTo()
 {
 	char input;
@@ -364,4 +455,19 @@ void pressTo()
 		input = getch();
 	}while(input != 13);
 
+}
+
+int check(char userName[10])
+{
+	int counter;
+	int flag = 0;
+
+	for(counter = 0; counter < 10 && flag == 0; counter ++)
+	{
+		if(userName[counter] == '\0')
+		{
+			flag = 1;
+		}
+	}
+	return flag;
 }
