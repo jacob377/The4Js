@@ -8,13 +8,14 @@
 #define SELECTIONS 5 
 
 
-
-struct player
-{
-	char userName[10];
-	char password[10];
-	int scores[4];
-};
+// redundnt by import on lingo.h and will cause an error
+// struct player
+// {
+// 	char userName[10];
+// 	char password[10];
+// 	int scores[4];
+// 	int attempts[4];
+// };
 
 struct stat
 {
@@ -22,7 +23,7 @@ struct stat
 	int score;
 };
 
-int logIn(struct player* player);
+int logIn(struct player* playerStorage);
 void pressTo();
 int check(char userName[10]);
 
@@ -106,6 +107,7 @@ int main()
 		loggedIn = logIn(&acctiveAccount);
 
 	}
+
 	if(loggedIn == 1)
 	{
 		while(flag == 1)
@@ -164,6 +166,8 @@ int main()
 				selection ++;
 			}
 
+
+
 			if(selection  == OPTIONS)
 			{
 				selection = 0;
@@ -182,7 +186,23 @@ int main()
 					case 0:
 					//lingo
 					system("cls");
-					playLingo();
+					playLingo(&acctiveAccount);
+					break;
+
+					case 4:
+					system("cls");
+					for(counter = 0; counter < 7; counter ++)
+					{
+						printf("\t       ");
+						for(letterCounter = 0; letterCounter < 45; letterCounter++)
+						{
+							printf("%c",stats[counter][letterCounter]);
+						}
+					}
+					
+					printf("\nFinish the stats part later\n");
+					//finish latter when games have been finished
+					pressTo();
 					break;
 
 					case 5:
@@ -193,6 +213,7 @@ int main()
 						{
 							printf("%c", end[counter][letterCounter]);
 						}
+
 					}
 					printf("\n\n\n\n\n\nPress enter to Exit or esc to return:");
 					do
@@ -284,6 +305,9 @@ int logIn(struct player* playerStorage)
 		{
 			switch(selection)
 			{
+
+
+
 				case 0:
 				if(accountFile == NULL)
 				{
@@ -292,6 +316,8 @@ int logIn(struct player* playerStorage)
 
 				}
 
+				fclose(accountFile);
+				accountFile = fopen("accountInfo.bin", "rb");
 				if(accounts > 0)
 				{
 					while(logFlag == 0)
@@ -316,6 +342,7 @@ int logIn(struct player* playerStorage)
 							fread(&playerBuffer, sizeof(struct player), 1, accountFile);
 							if(strcmp(playerBuffer.userName, InUserName) == 0 && strcmp(playerBuffer.password, InPassWord))
 							{
+								puts(playerBuffer.userName);
 								printf("You have Succsessfuly logged in\n\n");
 								pressTo();
 								logFlag = 1;
@@ -335,6 +362,9 @@ int logIn(struct player* playerStorage)
 				fclose(accountFile);
 				break;
 
+
+
+
 				case 1:
 				while(logFlag == 0)
 				{
@@ -343,7 +373,7 @@ int logIn(struct player* playerStorage)
 					do
 					{
 						system("cls");
-						printf("Enter a user name or type 'exit' to return to menue: ");
+						printf("Enter a 2-10 letter user name or type 'exit' to return to menue: ");
 						fflush(stdin);
 						gets(InUserName);
 					}while(check(InUserName) == 0);
@@ -372,7 +402,7 @@ int logIn(struct player* playerStorage)
 					do
 					{
 						system("cls");
-						printf("Now enter a password: ");
+						printf("Now enter a 2-10 letter password: ");
 						fflush(stdin);
 						gets(InPassWord);
 					}while(check(InPassWord) == 0);
@@ -390,27 +420,26 @@ int logIn(struct player* playerStorage)
 					if(input == 13)
 					{
 						printf("\n\n");
-						strcpy(playerBuffer.userName, InUserName);
-						strcpy(playerBuffer.password, InPassWord);
+						strcpy(playerStorage->userName, InUserName);
+						strcpy(playerStorage->password, InPassWord);
 
-						puts(playerBuffer.userName);
-						puts(playerBuffer.password);
-						playerBuffer.scores[0] = 0;
-						playerBuffer.scores[1] = 0;
-						playerBuffer.scores[2] = 0;
-						playerBuffer.scores[3] = 0;
+						playerStorage->scores[0] = 0;
+						playerStorage->scores[1] = 0;
+						playerStorage->scores[2] = 0;
+						playerStorage->scores[3] = 0;
+
+						playerStorage->attempts[0] = 0;
+						playerStorage->attempts[1] = 0;
+						playerStorage->attempts[2] = 0;
+						playerStorage->attempts[3] = 0;
 
 						fclose(accountFile);
 						fopen("accountInfo.bin", "ab");
-						fwrite(&playerBuffer, sizeof(struct player), 1, accountFile);
+						fwrite(playerStorage, sizeof(struct player), 1, accountFile);
 						fclose(accountFile);
 						return 1;
 					}
-
-					else
-					{
-
-					}
+					return 0;
 				}
 				break;
 
@@ -455,6 +484,8 @@ void pressTo()
 		input = getch();
 	}while(input != 13);
 
+	printf("\n");
+	system("cls");
 }
 
 int check(char userName[10])
@@ -462,7 +493,7 @@ int check(char userName[10])
 	int counter;
 	int flag = 0;
 
-	for(counter = 0; counter < 10 && flag == 0; counter ++)
+	for(counter = 2; counter < 10 && flag == 0; counter ++)
 	{
 		if(userName[counter] == '\0')
 		{
