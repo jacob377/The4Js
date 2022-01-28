@@ -1,4 +1,5 @@
 #include"lingo.h"
+#include"Mine Sweeper.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -89,12 +90,12 @@ int main()
 
 
 	char options[OPTIONS][20] = {
-		"Lingo    ",
-		"Option 2 ",
-		"Option 3 ",
-		"Option 4 ",
-		"Scores   ",
-		"Exit     "
+		"Lingo        ",
+		"Mine Sweaper ",
+		"Option 3     ",
+		"Option 4     ",
+		"Scores       ",
+		"Exit         "
 	};
 
 	int counter, lineCounter, letterCounter, optionCounter, flag = 1, selection = 0, loggedIn = 0;
@@ -105,7 +106,6 @@ int main()
 	while(loggedIn == 0)
 	{
 		loggedIn = logIn(&acctiveAccount);
-
 	}
 
 	if(loggedIn == 1)
@@ -122,7 +122,7 @@ int main()
 
 			printf("\n\n\n\n\n");
 
-			printf("\t\t\t\t   --------------\n");
+			printf("\t\t\t\t   ------------------\n");
 
 			for(counter = 0; counter < OPTIONS; counter ++)
 			{
@@ -144,7 +144,7 @@ int main()
 				printf("\n");
 			}
 
-			printf("\t\t\t\t   --------------\n");
+			printf("\t\t\t\t   ------------------\n");
 			fflush(stdin);
 			do
 			{
@@ -187,6 +187,12 @@ int main()
 					//lingo
 					system("cls");
 					playLingo(&acctiveAccount);
+					break;
+
+					case 1:
+					// Mine Sweaper
+					system("cls");
+					playMineSweaper(&acctiveAccount);
 					break;
 
 					case 4:
@@ -340,22 +346,36 @@ int logIn(struct player* playerStorage)
 						for(counter = 0; counter < accounts && logFlag == 0; counter ++)
 						{
 							fread(&playerBuffer, sizeof(struct player), 1, accountFile);
-							if(strcmp(playerBuffer.userName, InUserName) == 0 && strcmp(playerBuffer.password, InPassWord))
+							if(strcmp(playerBuffer.userName, InUserName) == 0 && strcmp(playerBuffer.password, InPassWord) == 0)
 							{
-								puts(playerBuffer.userName);
 								printf("You have Succsessfuly logged in\n\n");
 								pressTo();
 								logFlag = 1;
+								strcpy(playerStorage->userName, playerBuffer.userName);
+								strcpy(playerStorage->password, playerBuffer.password);
+
+								playerStorage->attempts[0] = playerBuffer.attempts[0];
+								playerStorage->attempts[1] = playerBuffer.attempts[1];
+								playerStorage->attempts[2] = playerBuffer.attempts[2];
+								playerStorage->attempts[3] = playerBuffer.attempts[3];
+
+								playerStorage->scores[0] = playerBuffer.scores[0];
+								playerStorage->scores[1] = playerBuffer.scores[1];
+								playerStorage->scores[2] = playerBuffer.scores[2];
+								playerStorage->scores[3] = playerBuffer.scores[3];
+
+								playerStorage->location = counter;
 								return 1;
 							}
 						}
 					puts("Faild to log in\n\n");
+					printf("\n\n");
 					}
 				}
 
 				else
 				{
-					printf("There are no accouts on this machine or an error had occured");
+					printf("There are no accouts on this machine or an error had occured\n");
 					pressTo();
 				}
 
