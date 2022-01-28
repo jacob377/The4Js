@@ -10,27 +10,30 @@
 #define SEVEN 1371
 #define HEART 3
 #define MAX_ATTEMPTS 6
-
-struct player
-{
-	char name[40];
-	int score;
-};
+#define LINGO_INDEX 0
 
 
 void getWord(char outWord[7], int size);
-int playRound(int size, char word[size], int *points);
+int playLingoRound(int size, char word[size], int *points);
 void changeBoard(int size, char Board[MAX_ATTEMPTS][size], char template[size], int attemptNumber);
 int inString(char letter, int size, char string[size]);
 void innitOverlay(int size, char overLay[MAX_ATTEMPTS][size]);
 
+struct player
+{
+	char userName[10];
+	char password[10];
+	int scores[4];
+	int attempts[4];
+	int location;
+};
 
+void writeAcount(struct player *currentAccount);
 
-int playLingo()
+int playLingo(struct player* currentAccount)
 {
 	int size, playing = 1, points = 0, active = 1;
 	char input;
-	char name[6];
 	char acctiveWord[7];
 
 
@@ -47,25 +50,39 @@ int playLingo()
 	do
 	{
 		getWord(acctiveWord, size);
-		active = playRound(size, acctiveWord, &points);
+		active = playLingoRound(size, acctiveWord, &points);
 	}while(active == 1);
 
 	do
 	{
-		printf("You had %d points would you like to summit your name and score to the leaderBoards(Y\\N):", points);
-		scanf("%c", &input);
-	}while(input != 'Y' && input != 'N' && input!= 'n' && input != 'y');
-	
+		system("cls");
+		currentAccount->attempts[LINGO_INDEX] = currentAccount->attempts[LINGO_INDEX] + 1;
+		printf("You scored %d points:", points);
+		printf("\n\n");
+		printf("Total attempts = %d\n", currentAccount->attempts[LINGO_INDEX]);
+		printf("Best previous score =");
 
-	if(input == 'Y' || input == 'y')
-	{
-		do
+		if(points < currentAccount->scores[LINGO_INDEX])
 		{
-			system("cls");
-			printf("please Enter a 5 letter name");
-			gets(name);
-		}while(name[5] != '\0');
-	}
+			printf(" %d", currentAccount->scores[LINGO_INDEX]);
+		}
+
+		else if(points > currentAccount->scores[LINGO_INDEX])
+		{
+			currentAccount->scores[LINGO_INDEX] = points;
+			printf(" %d  \nNEW High Score!!!\n");
+		}
+
+		else
+		{
+			printf(" %d \nAlmost a New High Score...\n");
+		}
+		
+
+		writeAcount(currentAccount);
+		printf("\nPress enter to return to main menu...\n");
+		input = getch();
+	}while(input != 13);
 
 	return points;
 }
@@ -123,7 +140,7 @@ void getWord(char outWord[7], int size)
 
 
 
-int playRound(int size, char word[size], int *points)
+int playLingoRound(int size, char word[size], int *points)
 {
 	char altWord[size];
 	char template[size];
@@ -280,4 +297,12 @@ void innitOverlay(int size, char overLay[MAX_ATTEMPTS][size])
 			overLay[counterIn][counterOut] = ' ';
 		}
 	}
+}
+
+void writeAcount(struct player *currentAccount)
+{
+	FILE *fp;
+	fp = fopen("accountInfo.bin", "wb");
+	fseek(fp, currentAccount->location, SEEK_SET);
+	fwrite(currentAccount, sizeof(struct player), 1, fp);
 }
