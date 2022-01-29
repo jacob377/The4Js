@@ -302,7 +302,7 @@ void innitOverlay(int size, char overLay[MAX_ATTEMPTS][size])
 void writeAcount(struct player *currentAccount)
 {
 	FILE *fp;
-	fp = fopen("accountInfo.bin", "wb");
+	fp = fopen("accountInfo.bin", "rb+");
 	fseek(fp, currentAccount->location, SEEK_SET);
 	fwrite(currentAccount, sizeof(struct player), 1, fp);
 }
