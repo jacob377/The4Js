@@ -915,7 +915,8 @@ int YesNo()
 void writeAccount(struct player *currentAccount)
 {
 	FILE *fp;
-	fp = fopen("accountInfo.bin", "wb");
-	fseek(fp, currentAccount->location, SEEK_SET);
+	fp = fopen("accountInfo.bin", "rb+");
+	fseek(fp, currentAccount->location * sizeof(struct player), SEEK_SET);
 	fwrite(currentAccount, sizeof(struct player), 1, fp);
+	fclose(fp);
 }
