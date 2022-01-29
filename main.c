@@ -6,7 +6,7 @@
 #include<conio.h>
 
 #define OPTIONS 6
-#define SELECTIONS 5 
+#define SELECTIONS 4
 
 
 // redundnt by import on lingo.h and will cause an error
@@ -21,12 +21,18 @@
 struct stat
 {
 	char userName[10];
+	int game;
 	int score;
 };
 
 int logIn(struct player* playerStorage);
 void pressTo();
 int check(char userName[10]);
+void scoreDisplay(struct player currentAccout);
+int checkPossition(int game_index, struct player currentAccout);
+void getLeader(struct stat list[5]);
+void swapstat(struct stat *one, struct stat *two);
+
 
 
 int main()
@@ -206,7 +212,8 @@ int main()
 						}
 					}
 					
-					printf("\nFinish the stats part later\n");
+					printf("\n\n\n");
+					scoreDisplay(acctiveAccount);
 					//finish latter when games have been finished
 					pressTo();
 					break;
@@ -240,13 +247,12 @@ int main()
 }
 
 
-
-
-
 int logIn(struct player* playerStorage)
 {
 	FILE * accountFile;
 	struct player playerBuffer;
+	struct stat statistics[5];
+
 	int flag = 1, counter, letterCounter, selection = 0, logFlag = 0, accounts, conflict = 0;
 	char input;
 	char InUserName[10], InPassWord[10];
@@ -261,7 +267,6 @@ int logIn(struct player* playerStorage)
 	{
 		"Log in\t",
 		"Sign up\t",
-		"Deleate an account",
 		"View Leader Board ",
 		"Exit\t"
 	};
@@ -364,7 +369,7 @@ int logIn(struct player* playerStorage)
 								playerStorage->scores[2] = playerBuffer.scores[2];
 								playerStorage->scores[3] = playerBuffer.scores[3];
 
-								playerStorage->location = counter;
+								playerStorage->location = playerBuffer.location;
 								return 1;
 							}
 						}
@@ -453,6 +458,9 @@ int logIn(struct player* playerStorage)
 						playerStorage->attempts[2] = 0;
 						playerStorage->attempts[3] = 0;
 
+						fseek(accountFile, 0, SEEK_END);
+						playerStorage->location = ftell(accountFile) / sizeof(struct player);
+
 						fclose(accountFile);
 						fopen("accountInfo.bin", "ab");
 						fwrite(playerStorage, sizeof(struct player), 1, accountFile);
@@ -464,14 +472,11 @@ int logIn(struct player* playerStorage)
 				break;
 
 				case 2:
+				getLeader(statistics);
 				return 0;
 				break;
 
 				case 3:
-				return 0;
-				break;
-
-				case 4:
 				return -1;
 				break;
 
@@ -521,4 +526,178 @@ int check(char userName[10])
 		}
 	}
 	return flag;
+}
+
+void scoreDisplay(struct player currentAccout)
+{
+	char Games[5][20] = {
+		"    Lingo    ",
+		"Mine  Sweaper",
+		"  option  3  ",
+		"  option  4  "
+	};
+
+	int counter;
+
+	for(counter = 0; counter < 4; counter ++)
+	{
+		printf("\t\t\t\t%s\n", Games[counter]);
+		printf("\n");
+		printf("\t\t\tHigh score\t-\t %d", currentAccout.scores[counter]);
+		printf("\n\t\t\tAttempts\t-\t %d", currentAccout.attempts[counter]);
+		printf("\n\t\t\tPossition\t-\t %d",checkPossition(counter, currentAccout));
+		printf("\n\n\n");
+	}
+}
+
+int checkPossition(int game_index, struct player currentAccout)
+{
+	int possition = 0,people = 0, counter, size;
+	struct player bufferAccount;
+
+
+	FILE * fp;
+
+	fp = fopen("accountInfo.bin", "rb");
+
+	if(fp != NULL)
+	{
+		fseek(fp, 0, SEEK_END);
+		size = ftell(fp) / sizeof(struct player);
+		fseek(fp, 0, SEEK_SET);	
+
+		for(counter = 0; counter < size; counter ++)
+		{
+			fread(&bufferAccount, sizeof(struct player), 1, fp);
+			people ++;
+			if(currentAccout.scores[game_index] > bufferAccount.scores[game_index])
+			{
+				possition ++;
+			}
+		}
+	}
+	return people - possition;
+}
+
+void getLeader(struct stat list[5])
+{
+	FILE * fp;
+	int game_index;
+	int size, counter1, counter2;
+	int selection = 0;
+	struct player playerBuf;
+	char tempName[10];
+	int tempScore, temp;
+	int input, swapped = 1;
+
+	char options[4][20] = {
+	"Lingo        ",
+	"Mine Sweaper ",
+	"Option 3     ",
+	"Option 4     ",
+	};
+
+
+	printf("\n\n\n");
+	do
+	{
+		printf("\n\n");
+		system("cls");
+		printf("What game do you want to see the leader board for?\n\n");
+
+		printf("\t\t\t -----------------\n");
+		for(counter1 = 0; counter1 < 4; counter1 ++)
+		{
+			printf("\t\t\t| %s", options[counter1]);
+			if(selection == counter1)
+			{
+				printf(" < |");
+			}
+
+			else
+			{
+				printf("   |");
+			}
+			printf("\n");
+		}
+		printf("\t\t\t -----------------");
+		input = getMove();
+
+		switch(input)
+		{
+			case 1:
+			selection --;
+			if(selection < 0)
+			{
+				selection = 3;
+			}
+			break;
+
+			case 2:
+			selection ++;
+			if(selection >= 4)
+			{
+				selection = 0;
+			}
+			break;
+		}
+
+
+	}while(input != 5 && input != 6);
+
+	if(input == 5)
+	{
+		game_index = selection;
+		fp = fopen("accountInfo.bin", "rb");
+		fseek(fp, 0, SEEK_END);
+		size = ftell(fp) / sizeof(struct player);
+		fseek(fp, 0, SEEK_SET);
+
+		struct stat statistics[size];
+
+		for(counter1 = 0; counter1 < size; counter1 ++)
+		{
+			fread(&playerBuf, sizeof(struct player), 1, fp);
+			strcpy(statistics[counter1].userName, playerBuf.userName);
+			statistics[counter1].score = playerBuf.scores[game_index];
+			statistics[counter1].game = game_index;
+		}
+		fclose(fp);
+
+
+		for(counter1 = 1; counter1 < size; counter1 ++)
+		{
+			temp = counter1 - 1;
+			while(statistics[temp+1].score > statistics[temp].score && temp >= 0)
+			{
+				swapstat(&statistics[temp], &statistics[temp +1]);
+				temp--;
+			}
+		}
+
+		system("cls");
+		printf("\n\n");
+		printf("\t\t\tName   -   Score\n\n");
+		for(counter1 = 0; counter1 < size; counter1 ++)
+		{
+			printf("\t\t\t%s  -   %d\n", statistics[counter1].userName, statistics[counter1].score);
+		}
+		printf("\n\n");
+		pressTo();
+	}
+}
+
+void swapstat(struct stat *one, struct stat *two)
+{
+	char tempName[20];
+	int tempScore;
+
+	strcpy(tempName, one->userName);
+	tempScore = one->score;
+
+	strcpy(one->userName, two->userName);
+	one->score =two->score;
+
+	strcpy(two->userName, tempName);
+	two->score = tempScore;	
 }
