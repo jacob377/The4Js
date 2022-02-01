@@ -1,3 +1,5 @@
+#pragma once
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -18,6 +20,9 @@ int playLingoRound(int size, char word[size], int *points);
 void changeBoard(int size, char Board[MAX_ATTEMPTS][size], char template[size], int attemptNumber);
 int inString(char letter, int size, char string[size]);
 void innitOverlay(int size, char overLay[MAX_ATTEMPTS][size]);
+void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size]);
+void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size]);
+void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size]);
 
 struct player
 {
@@ -25,6 +30,7 @@ struct player
 	char password[10];
 	int scores[4];
 	int attempts[4];
+	int money;
 	int location;
 };
 
@@ -142,6 +148,8 @@ void getWord(char outWord[7], int size)
 
 int playLingoRound(int size, char word[size], int *points)
 {
+	char testing;
+
 	char altWord[size];
 	char template[size];
 	char wrongPlaceLoc[MAX_ATTEMPTS][size];
@@ -175,25 +183,26 @@ int playLingoRound(int size, char word[size], int *points)
 			system("cls");
 
 
-			for(counter = 0; counter < MAX_ATTEMPTS; counter ++)
-			{
-				for(letterCounter = 0; letterCounter < size; letterCounter ++)
-				{
-					printf("%c ", wrongPlaceLoc[counter][letterCounter]);
-				}
-				printf("\n");
+			// for(counter = 0; counter < MAX_ATTEMPTS; counter ++)
+			// {
+			// 	for(letterCounter = 0; letterCounter < size; letterCounter ++)
+			// 	{
+			// 		printf("%c ", wrongPlaceLoc[counter][letterCounter]);
+			// 	}
+			// 	printf("\n");
 
-				for(letterCounter = 0; letterCounter< size; letterCounter ++)
-				{
-					printf("%c ", pastAttempts[counter][letterCounter]);
-				}
+			// 	for(letterCounter = 0; letterCounter< size; letterCounter ++)
+			// 	{
+			// 		printf("%c ", pastAttempts[counter][letterCounter]);
+			// 	}
 
-				if(counter == attemptNumber - 1)
-				{
-					printf("\t<<<");
-				}
-				printf("\n\n");
-			}
+			// 	if(counter == attemptNumber - 1)
+			// 	{
+			// 		printf("\t<<<");
+			// 	}
+			// 	printf("\n\n");
+			// }
+			displayWords(size, wrongPlaceLoc, pastAttempts);
 
 			input[size] = 'o';
 			printf("\nEnter a %d letter word: ", size);
@@ -227,6 +236,8 @@ int playLingoRound(int size, char word[size], int *points)
 		}
 
 		attemptNumber ++;
+		
+
 		changeBoard(size, pastAttempts, template, attemptNumber);
 		if (strcmp(template, word) == 0)
 		{
@@ -305,4 +316,52 @@ void writeAcount(struct player *currentAccount)
 	fp = fopen("accountInfo.bin", "rb+");
 	fseek(fp, currentAccount->location, SEEK_SET);
 	fwrite(currentAccount, sizeof(struct player), 1, fp);
+}
+
+void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size])
+{
+	int counter;
+
+	for(counter = 0; counter < MAX_ATTEMPTS; counter ++)
+	{
+		printfLine(size, wrongPlaceLoc[counter], pastAttempts[counter]);
+	}
+}
+
+void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size])
+{
+	int counter1, counter2, counter3;
+
+	printf(" ");
+	for(counter1 = 0; counter1 <= size * 4 - 2; counter1 ++)
+	{
+		printf("-");
+	}
+	printf("\n");
+
+	for(counter1 = 0; counter1 < 3; counter1 ++)
+	{
+		for(counter2 = 0; counter2 < size; counter2++)
+		{
+			if(counter1 == 1)
+
+			{
+			printf("|%c%c%c", wrongPlaceLoc[counter2], pastAttempts[counter2], wrongPlaceLoc[counter2]);
+			}
+
+			else
+			{
+				printf("|%c%c%c", wrongPlaceLoc[counter2], wrongPlaceLoc[counter2], wrongPlaceLoc[counter2]);
+			}
+			
+		}
+		printf("|\n");
+	}
+
+	printf(" ");
+	for(counter1 = 0; counter1 <= size * 4 - 2; counter1 ++)
+	{
+		printf("-");
+	}
+	printf("\n\n\n");
 }
