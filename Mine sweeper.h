@@ -1,3 +1,5 @@
+#pragma once
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -10,14 +12,6 @@
 #define OPAQUE 178
 #define MINE_SWEAPER_INDEX 1
 
-
-// struct player
-// {
-// 	char userName[10];
-// 	char password[10];
-// 	int scores[4];
-// 	int attempts[4];
-// }; 
 
 
 
