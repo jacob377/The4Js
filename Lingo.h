@@ -20,9 +20,8 @@ int playLingoRound(int size, char word[size], int *points);
 void changeBoard(int size, char Board[MAX_ATTEMPTS][size], char template[size], int attemptNumber);
 int inString(char letter, int size, char string[size]);
 void innitOverlay(int size, char overLay[MAX_ATTEMPTS][size]);
-void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size]);
-void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size]);
-void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size]);
+void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size], int attemptNumber);
+void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size], int attempt);
 
 struct player
 {
@@ -202,7 +201,7 @@ int playLingoRound(int size, char word[size], int *points)
 			// 	}
 			// 	printf("\n\n");
 			// }
-			displayWords(size, wrongPlaceLoc, pastAttempts);
+			displayWords(size, wrongPlaceLoc, pastAttempts, attemptNumber);
 
 			input[size] = 'o';
 			printf("\nEnter a %d letter word: ", size);
@@ -318,17 +317,17 @@ void writeAcount(struct player *currentAccount)
 	fwrite(currentAccount, sizeof(struct player), 1, fp);
 }
 
-void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size])
+void displayWords(int size, char wrongPlaceLoc[MAX_ATTEMPTS][size], char pastAttempts[MAX_ATTEMPTS][size], int attemptNumber)
 {
 	int counter;
 
 	for(counter = 0; counter < MAX_ATTEMPTS; counter ++)
 	{
-		printfLine(size, wrongPlaceLoc[counter], pastAttempts[counter]);
+		printfLine(size, wrongPlaceLoc[counter], pastAttempts[counter], counter == attemptNumber - 1);
 	}
 }
 
-void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size])
+void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size], int attempt)
 {
 	int counter1, counter2, counter3;
 
@@ -355,7 +354,14 @@ void printfLine(int size, char wrongPlaceLoc[size], char pastAttempts[size])
 			}
 			
 		}
-		printf("|\n");
+		if(attempt == 1 && counter1 == 1)
+		{
+			printf("| <<<\n");
+		}
+		else
+		{
+			printf("|\n");
+		}
 	}
 
 	printf(" ");
