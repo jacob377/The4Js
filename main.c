@@ -9,15 +9,6 @@
 #define SELECTIONS 4
 
 
-// redundnt by import on lingo.h and will cause an error
-// struct player
-// {
-// 	char userName[10];
-// 	char password[10];
-// 	int scores[4];
-// 	int attempts[4];
-// };
-
 struct stat
 {
 	char userName[10];
@@ -370,6 +361,7 @@ int logIn(struct player* playerStorage)
 								playerStorage->scores[3] = playerBuffer.scores[3];
 
 								playerStorage->location = playerBuffer.location;
+								playerStorage->money =playerBuffer.money;
 								return 1;
 							}
 						}
@@ -460,6 +452,7 @@ int logIn(struct player* playerStorage)
 
 						fseek(accountFile, 0, SEEK_END);
 						playerStorage->location = ftell(accountFile) / sizeof(struct player);
+						playerStorage->money = 50;
 
 						fclose(accountFile);
 						fopen("accountInfo.bin", "ab");
